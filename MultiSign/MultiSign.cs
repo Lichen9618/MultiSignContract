@@ -61,12 +61,31 @@ namespace MultiSign
         private static bool CheckMultisign(byte[] Message, object[] Signs)
         {
             int Count = 0;
+            bool find = false;
             Map<BigInteger, byte[]> WhiteList = GetWhiteList();
             for (int i = 0; i < Signs.Length; i++)
             {
+                byte[] tempSign = (byte[])Signs[i];
+                for (int k = 0; k < i; k++)
+                {
+                    if (tempSign == (byte[])Signs[k])
+                    {
+                        find = true;
+                        break;
+                    }
+                }
+                if (find)
+                {
+                    continue;
+                }
+
                 for (int j = 1; j <= WhiteList.Keys.Length; j++)
                 {
-                    if (SmartContract.VerifySignature(Message, (byte[])Signs[i], WhiteList[j]))
+                    if ((j - 1) != i && tempSign == Signs[j-1])
+                    {
+                        continue;
+                    }
+                    if (SmartContract.VerifySignature(Message, tempSign, WhiteList[j]))
                     {
                         Count++;
                     }
